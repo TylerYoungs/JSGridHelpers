@@ -1,8 +1,8 @@
-﻿using BioTapMedical.Models.JSGridModels.JSGridColumns.Abstracts;
+﻿using JSGridModels.JSGridColumns.Abstracts;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace BioTapMedical.Models.JSGridModels
+namespace JSGridModels
 {
     //Any property that is lowercase will be consumed in the javascript JSGridHelper. If the property is uppercased, it is utilized purely in C#. This is a convention I'm establishing.
     public class JSGridTable

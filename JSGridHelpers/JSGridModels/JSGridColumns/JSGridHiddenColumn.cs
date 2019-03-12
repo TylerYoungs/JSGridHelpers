@@ -1,8 +1,8 @@
-﻿using BioTapMedical.Models.JSGridModels.JSGridColumns.Abstracts;
-using BioTapMedical.Models.JSGridModels.JSGridColumns.Enums;
-using BioTapMedical.Models.JSGridModels.JSGridColumns.Interfaces;
+﻿using JSGridModels.JSGridColumns.Abstracts;
+using JSGridModels.JSGridColumns.Enums;
+using JSGridModels.JSGridColumns.Interfaces;
 
-namespace BioTapMedical.Models.JSGridModels.JSGridColumns
+namespace JSGridModels.JSGridColumns
 {
     public class JSGridHiddenInformationColumn : JSGridColumn, IJSGridNamedColumn, IJSGridUneditableColumn
     {

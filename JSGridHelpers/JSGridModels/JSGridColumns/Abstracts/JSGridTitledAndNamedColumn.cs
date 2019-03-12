@@ -1,7 +1,7 @@
-﻿using BioTapMedical.Models.JSGridModels.JSGridColumns.Enums;
-using BioTapMedical.Models.JSGridModels.JSGridColumns.Interfaces;
+﻿using JSGridModels.JSGridColumns.Enums;
+using JSGridModels.JSGridColumns.Interfaces;
 
-namespace BioTapMedical.Models.JSGridModels.JSGridColumns.Abstracts
+namespace JSGridModels.JSGridColumns.Abstracts
 {
     public abstract class JSGridTitledAndNamedColumn : JSGridColumn, IJSGridNamedColumn, IJSGridTitledColumn
     {

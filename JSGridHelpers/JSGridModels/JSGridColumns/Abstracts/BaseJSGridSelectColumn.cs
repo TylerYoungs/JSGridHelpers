@@ -1,7 +1,7 @@
-﻿using BioTapMedical.Models.JSGridModels.JSGridColumns.Enums;
+﻿using JSGridModels.JSGridColumns.Enums;
 using System.Collections.Generic;
 
-namespace BioTapMedical.Models.JSGridModels.JSGridColumns.Abstracts
+namespace JSGridModels.JSGridColumns.Abstracts
 {
     public abstract class BaseJSGridSelectColumn<SelectOptionsType> : JSGridTitledAndNamedColumn
     {

@@ -1,4 +1,4 @@
-﻿namespace BioTapMedical.Models.JSGridModels.JSGridColumns.Enums
+﻿namespace JSGridModels.JSGridColumns.Enums
 {
     public enum ColumnType
     {
