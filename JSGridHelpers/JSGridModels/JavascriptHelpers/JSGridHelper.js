@@ -1,49 +1,51 @@
 ﻿var insertOrUpdateFailed = false;
+
 var JSGridHelperThatTakesAJSGridObject = (function () {
-    var createJSGridTable = function (table, cssIdOfTable, koMethodForObservableArrayOfData) {
+    var jsGridHelper = this;
+    jsGridHelper.getTimeMethod = TimeHelper.FormatEpochTimeToMonthDayYearTime;
+
+    var createJSGridTable = function (table, cssIdOfTable, koMethodForObservableArrayOfData, koMethodForJSGridObject) {
         var jsGridObject = table;
+        koMethodForObservableArrayOfData = koMethodForObservableArrayOfData === null || koMethodForObservableArrayOfData === undefined ? ko.observableArray([]) : koMethodForObservableArrayOfData;
 
-        jsGridObject = getJSGridObjectWithAbsoluteURLs(table, window.siteBaseURL);
-        jsGridObject.controller = (new Controller(table, jsGridObject, koMethodForObservableArrayOfData)).getControllerObject();
-        jsGridObject.fields = getFields(table);
+        jsGridObject = table;
+        jsGridObject.controller = (new controller(table, jsGridObject, koMethodForObservableArrayOfData)).getControllerObject();
+        jsGridObject.fields = getFields(table, koMethodForObservableArrayOfData());
 
-        grid = $("#" + cssIdOfTable).jsGrid(jsGridObject);
+        if (koMethodForJSGridObject !== null && koMethodForJSGridObject !== undefined) {
+            koMethodForJSGridObject(jsGridObject);
+        }
+
+        getJquerySelectorForTable(cssIdOfTable).jsGrid(jsGridObject);
     };
 
-    var getJSGridObjectWithAbsoluteURLs = function (table, rootURL) {
-        if (table.deleteURL !== null) {
-            table.deleteURL = table.deleteURL;
-        }
+    var getJquerySelectorForTable = function (cssIdOfTable) {
+        return $("#" + cssIdOfTable);
+    }
 
-        if (table.insertURL !== null) {
-            table.insertURL = table.insertURL;
-        }
-
-        if (table.updateURL !== null) {
-            table.updateURL = table.updateURL;
-        }
-
-        return table;
-    };
+    var refresh = function (cssIdOfTable) {
+        getJquerySelectorForTable(cssIdOfTable).jsGrid("refresh");
+    }
 
     var moveFromBackToFront = function (array) {
         var item = array.pop();
         array.unshift(item);
     };
 
-    function Controller(table, jsGridObject, koMethodForObservableArrayOfData) {
+    var controller = function (table, jsGridObject, koMethodForObservableArrayOfData) {
         var self = this;
 
         self.jsGridObject = jsGridObject;
+        self.getURL = table.getURL;
+        self.getData = table.getData;
 
-        self.koMethodForObservableArrayOfData = koMethodForObservableArrayOfData === null ? function (data) { } : koMethodForObservableArrayOfData;
+        self.koMethodForObservableArrayOfData = koMethodForObservableArrayOfData;
+        self.koMethodForObservableArrayOfData(self.koMethodForObservableArrayOfData().slice(0, self.koMethodForObservableArrayOfData().length));
 
         self.fields = table.fields;
         self.updateURL = table.updateURL;
         self.deleteURL = table.deleteURL;
         self.insertURL = table.insertURL;
-
-        self.records = table.data.slice(0, table.data.length);
 
         self.firstAdditionalItemProperty = table.firstAdditionalItemProperty;
         self.secondAdditionalItemProperty = table.secondAdditionalItemProperty;
@@ -65,9 +67,35 @@ var JSGridHelperThatTakesAJSGridObject = (function () {
             controller.filter = {};
             controller.loadData = function (filter) {
                 controller.filter = filter;
-                return $.grep(self.records, function (record) {
-                    return shouldRecordBeKeptInResults(filter, record, self.fields);
-                });
+
+                var d = $.Deferred();
+
+                if (self.getURL !== null && self.getURL !== undefined && self.getData !== null && self.getData !== undefined) {
+                    var localGetData = self.getData;
+                    if (filter.sortField && filter.sortOrder) {
+                        self.getData.ColumnSort = { Name: filter.sortField, Order: filter.sortOrder };
+                        localGetData = $.param(self.getData).replace(/%5b([^0-9].*?)%5d/gi, '.$1');
+                    }
+
+                    $.get(self.getURL, localGetData).done(function (data) {
+                        self.koMethodForObservableArrayOfData(data);
+                        var items = $.grep(self.koMethodForObservableArrayOfData(), function (record) {
+                            return shouldRecordBeKeptInResults(filter, record, self.fields);
+                        });
+
+                        self.koMethodForObservableArrayOfData(items);
+                        var expectedObj = { data: items, itemsCount: [items.length] };
+
+                        d.resolve(expectedObj);
+                    });
+                }
+                else {
+                    d.resolve($.grep(self.koMethodForObservableArrayOfData(), function (record) {
+                        return shouldRecordBeKeptInResults(filter, record, self.fields);
+                    }));
+                }
+
+                return d.promise();
             };
 
 
@@ -78,10 +106,8 @@ var JSGridHelperThatTakesAJSGridObject = (function () {
                         newItem = previousItem;
                     }
                     else {
-                        addTempItemToRecords(previousItem, newItem, self.records);
+                        self.koMethodForObservableArrayOfData(addTempItemToAndGetRecords(previousItem, newItem, self.koMethodForObservableArrayOfData()));
                     }
-
-                    self.koMethodForObservableArrayOfData(self.records);
 
                     return newItem;
                 };
@@ -93,12 +119,10 @@ var JSGridHelperThatTakesAJSGridObject = (function () {
                     var newItem = jsGridInsertUpdateMethod(item, self.fields, self.firstAdditionalItemProperty, self.secondAdditionalItemProperty, self.insertURL, "PUT");
 
                     if (insertOrUpdateFailed === false) {
-                        addTempItemToRecords(tempItem, newItem, self.records);
+                        self.koMethodForObservableArrayOfData(addTempItemToAndGetRecords(tempItem, newItem, self.koMethodForObservableArrayOfData()));
                     }
 
                     controller.loadData(controller.filter);
-
-                    self.koMethodForObservableArrayOfData(self.records);
 
                     return newItem;
                 };
@@ -115,12 +139,10 @@ var JSGridHelperThatTakesAJSGridObject = (function () {
                     }).done(function (deletedItem) {
                     });
 
-                    var indexOfItem = self.records.indexOf(item);
+                    var indexOfItem = self.koMethodForObservableArrayOfData().indexOf(item);
                     if (indexOfItem > -1) {
-                        self.records.splice(indexOfItem, 1);
+                        self.koMethodForObservableArrayOfData(self.koMethodForObservableArrayOfData().splice(indexOfItem, 1));
                     }
-
-                    self.koMethodForObservableArrayOfData(self.records);
 
                     return item;
                 };
@@ -130,7 +152,7 @@ var JSGridHelperThatTakesAJSGridObject = (function () {
         };
     }
 
-    var addTempItemToRecords = function (item, newItem, records) {
+    var addTempItemToAndGetRecords = function (item, newItem, records) {
         delete records[item];
 
         var index = records.indexOf(item);
@@ -144,6 +166,8 @@ var JSGridHelperThatTakesAJSGridObject = (function () {
         }
 
         records.splice(index, itemsToRemove, newItem);
+
+        return records;
     };
 
     var jsGridInsertUpdateMethod = function (item, fields, firstAdditionalItemProperty, secondAdditionalItemProperty, url, httpType) {
@@ -201,8 +225,14 @@ var JSGridHelperThatTakesAJSGridObject = (function () {
     };
 
     var shouldRecordBeKeptInResults = function (filter, record, fields) {
+        var propCountOfFilter = 0;
+        $.each(filter, function (key, value) { propCountOfFilter++; });
+
+        if (propCountOfFilter === 0 && filter.constructor === Object) {
+            return true;
+        }
+
         var props = getPropertyNamesOfRow(record);
-        var returnRecord = true;
 
         for (var i = 0; i < props.length; i++) {
             var currentProp = props[i].toString();
@@ -213,23 +243,20 @@ var JSGridHelperThatTakesAJSGridObject = (function () {
             var isDateTimeField = fieldType === "dateTime";
 
             if (filterAndRecordValuesAreNotEqual(filterValue, value, isDateTimeField)) {
+
                 if (fieldType === "text") {
                     if (!doesRecordIncludeFilterValue(value, filterValue)) {
-                        returnRecord = false;
+                        return false;
                     }
                 }
 
-                else if (isDateTimeField) {
-                    returnRecord = shouldDateTimeBeKeptInResults(filterValue, value);
-                }
-
-                else {
-                    returnRecord = false;
+                else if (isDateTimeField && !shouldDateTimeBeKeptInResults(filterValue, value)) {
+                    return false;
                 }
             }
         }
 
-        return returnRecord;
+        return true;
     };
 
     var shouldDateTimeBeKeptInResults = function (filterValue, value) {
@@ -246,7 +273,7 @@ var JSGridHelperThatTakesAJSGridObject = (function () {
         }
 
         else if (!isValueNullOrEmpty) {
-            var valueAsDate = new Date(value);
+            valueAsDate = new Date(jsGridHelper.getTimeMethod(value));
 
             if (!isFromNullOrEmpty && !isToNullOrEmpty && valueAsDate < to && valueAsDate > from) {
                 return true;
@@ -273,9 +300,8 @@ var JSGridHelperThatTakesAJSGridObject = (function () {
     };
 
     var filterAndRecordValuesAreNotEqual = function (filterValue, recordValue, isDateTime) {
-        //when IE is deprecated, uncomment
-        //var keepDateTime = !isDateTime || (isDateTime && (filterValue.from !== null || filterValue.to !== null));
-        return !isNullEmptyOrUndefined(filterValue) && recordValue !== filterValue;//add && keepDateTime when IE is deprecated
+        var keepDateTime = !isDateTime || (isDateTime && (filterValue.from !== null || filterValue.to !== null));
+        return !isNullEmptyOrUndefined(filterValue) && recordValue !== filterValue && keepDateTime;
     };
 
     var doesRecordIncludeFilterValue = function (recordValue, filterValue) {
@@ -304,7 +330,7 @@ var JSGridHelperThatTakesAJSGridObject = (function () {
         };
     };
 
-    var getFields = function (table) {
+    var getFields = function (table, data) {
         fieldsAsObjects = [];
         var containsControl = false;
 
@@ -315,13 +341,13 @@ var JSGridHelperThatTakesAJSGridObject = (function () {
                 setupTextArea(field);
             }
 
-            if (table && table.data && table.data.length > 0) {
-                var firstRecord = table.data[0];
+            if (table && data && data.length > 0) {
+                var firstRecord = data[0];
                 var propNames = Object.keys(firstRecord);
 
                 for (var j = 0; j < propNames.length; j++) {
                     if (propNames[j] === field.name && field.type !== "textarea") {
-                        field.width = (field.width === null || field.width === undefined ? getFieldWidthDynamically(table.data, field) : field.width);
+                        field.width = field.width === null || field.width === undefined ? getFieldWidthDynamically(data, field) : field.width;
                         break;
                     }
                 }
@@ -401,9 +427,11 @@ var JSGridHelperThatTakesAJSGridObject = (function () {
     jsGrid.fields.text.prototype.filterTemplate = function () {
         var grid = this._grid;
         var $result = originalFilterTemplate.call(this);
+
         $result.on("keyup", function (e) {
             grid.search();
         });
+
         return $result;
     };
 
@@ -412,14 +440,15 @@ var JSGridHelperThatTakesAJSGridObject = (function () {
         align: "center",
 
         filterTemplate: function () {
-            //uncomment when ie is deprecated
-            //var now = new Date();
-            //this._fromPicker = $("<input>").datepicker();
-            //this._toPicker = $("<input>").datepicker();
-            //return $("<div>").append(this._fromPicker).append(this._toPicker);
+            this._fromPicker = $("<input>").datepicker();
+            this._toPicker = $("<input>").datepicker();
+            return $("<div>").append(this._fromPicker).append(this._toPicker);
         },
 
         sorter: function (date1, date2) {
+            var date1 = jsGridHelper.getTimeMethod(date1);
+            var date2 = jsGridHelper.getTimeMethod(date2);
+
             return new Date(date1) - new Date(date2);
         },
 
@@ -427,8 +456,7 @@ var JSGridHelperThatTakesAJSGridObject = (function () {
             if (value === null) {
                 return null;
             }
-
-            return TimeHelper.FormatEpochTimeToMonthDayYearTime(value);
+            return jsGridHelper.getTimeMethod(value);
         },
 
         insertTemplate: function (value) {
@@ -448,11 +476,10 @@ var JSGridHelperThatTakesAJSGridObject = (function () {
         },
 
         filterValue: function () {
-            //uncomment when ie is deprecated
-            //return {
-            //    from: this._fromPicker.datepicker("getDate"),
-            //    to: this._toPicker.datepicker("getDate")
-            //};
+            return {
+                from: this._fromPicker.datepicker("getDate"),
+                to: this._toPicker.datepicker("getDate")
+            };
         }
     });
 
@@ -543,6 +570,9 @@ var JSGridHelperThatTakesAJSGridObject = (function () {
     jsGrid.fields.multiSelect = MultiselectField;
 
     return {
-        CreateJSGridTable: createJSGridTable
+        Create: createJSGridTable,
+        Refresh: refresh,
+        CreateController: controller,
+        GetFields: getFields
     };
 })();
