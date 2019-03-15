@@ -41,6 +41,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Extensions\LinqExtensions.cs" />
+    <Compile Include="Helpers\SortingHelper.cs" />
     <Compile Include="JSGridColumns\Abstracts\BaseJSGridSelectColumn.cs" />
     <Compile Include="JSGridColumns\Abstracts\JSGridButtonColumn.cs" />
     <Compile Include="JSGridColumns\Abstracts\JSGridColumn.cs" />
@@ -70,5 +72,6 @@
   <ItemGroup>
     <Content Include="JavascriptHelpers\JSGridHelper.js" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

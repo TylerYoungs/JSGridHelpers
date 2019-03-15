@@ -27,6 +27,9 @@ namespace JSGridModels
             sorting = true;
             paging = true;
             loadMessage = "Please, wait...";
+
+            autoload = false;
+            pageLoading = false;
         }
 
         public JSGridTable(List<object> rows, List<JSGridColumn> columns, bool allowEditingRows, bool allowDeletingRows, bool allowInsertingRows, string updateURL, string deleteURL, string insertURL)
@@ -54,6 +57,7 @@ namespace JSGridModels
         public bool deleting { get; set; }
         public bool sorting { get; set; }
         public bool autoload { get; set; }
+        public bool pageLoading { get; set; }
         public bool paging { get; set; }//set to "false" to show all items in the grid
 
         public string noDataContent { get; set; }
