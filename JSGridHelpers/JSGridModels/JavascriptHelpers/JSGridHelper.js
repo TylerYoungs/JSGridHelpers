@@ -65,6 +65,18 @@ var JSGridHelperThatTakesAJSGridObject = (function () {
             var controller = {};
 
             controller.filter = {};
+
+            var getDeferredDataFromKOObservable = function (d, filter, fields) {
+                var items = $.grep(self.koMethodForObservableArrayOfData(), function (record) {
+                    return shouldRecordBeKeptInResults(filter, record, fields);
+                });
+
+                self.koMethodForObservableArrayOfData(items);
+                var expectedObj = { data: items, itemsCount: [items.length] };
+
+                d.resolve(expectedObj);
+            };
+
             controller.loadData = function (filter) {
                 controller.filter = filter;
 
@@ -79,20 +91,11 @@ var JSGridHelperThatTakesAJSGridObject = (function () {
 
                     $.get(self.getURL, localGetData).done(function (data) {
                         self.koMethodForObservableArrayOfData(data);
-                        var items = $.grep(self.koMethodForObservableArrayOfData(), function (record) {
-                            return shouldRecordBeKeptInResults(filter, record, self.fields);
-                        });
-
-                        self.koMethodForObservableArrayOfData(items);
-                        var expectedObj = { data: items, itemsCount: [items.length] };
-
-                        d.resolve(expectedObj);
+                        getDeferredDataFromKOObservable(d, filter, self.fields);
                     });
                 }
                 else {
-                    d.resolve($.grep(self.koMethodForObservableArrayOfData(), function (record) {
-                        return shouldRecordBeKeptInResults(filter, record, self.fields);
-                    }));
+                    getDeferredDataFromKOObservable(d, filter, self.fields);
                 }
 
                 return d.promise();
@@ -572,7 +575,5 @@ var JSGridHelperThatTakesAJSGridObject = (function () {
     return {
         Create: createJSGridTable,
         Refresh: refresh,
-        CreateController: controller,
-        GetFields: getFields
     };
 })();
