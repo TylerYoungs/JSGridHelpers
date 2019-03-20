@@ -6,7 +6,7 @@ var JSGridHelperThatTakesAJSGridObject = (function () {
 
     var createJSGridTable = function (table, cssIdOfTable, koMethodForObservableArrayOfData, koMethodForJSGridObject) {
         var jsGridObject = table;
-        koMethodForObservableArrayOfData = koMethodForObservableArrayOfData === null || koMethodForObservableArrayOfData === undefined ? ko.observableArray([]) : koMethodForObservableArrayOfData;
+        koMethodForObservableArrayOfData = koMethodForObservableArrayOfData === null || koMethodForObservableArrayOfData === undefined ? ko.observableArray(jsGridObject.data) : koMethodForObservableArrayOfData;
 
         jsGridObject = table;
         jsGridObject.controller = (new controller(table, jsGridObject, koMethodForObservableArrayOfData)).getControllerObject();
@@ -40,7 +40,8 @@ var JSGridHelperThatTakesAJSGridObject = (function () {
         self.getData = table.getData;
 
         self.koMethodForObservableArrayOfData = koMethodForObservableArrayOfData;
-        self.koMethodForObservableArrayOfData(self.koMethodForObservableArrayOfData().slice(0, self.koMethodForObservableArrayOfData().length));
+        self.koMethodForObservableArrayOfData(koMethodForObservableArrayOfData().slice(0, koMethodForObservableArrayOfData().length));
+        self.koMethodForFilteredData = ko.observableArray(self.koMethodForObservableArrayOfData());
 
         self.fields = table.fields;
         self.updateURL = table.updateURL;
@@ -60,21 +61,21 @@ var JSGridHelperThatTakesAJSGridObject = (function () {
             }
         };
 
+        var isDataLoadedFromURL = function () { return self.getURL !== null && self.getURL !== undefined && self.getData !== null && self.getData !== undefined; }
+
         self.getControllerObject = function () {
 
             var controller = {};
-
             controller.filter = {};
 
-            var getDeferredDataFromKOObservable = function (d, filter, fields) {
-                var items = $.grep(self.koMethodForObservableArrayOfData(), function (record) {
+            var filterData = function (filter, fields, data) {
+                return $.grep(data, function (record) {
                     return shouldRecordBeKeptInResults(filter, record, fields);
                 });
+            };
 
-                self.koMethodForObservableArrayOfData(items);
-                var expectedObj = { data: items, itemsCount: [items.length] };
-
-                d.resolve(expectedObj);
+            var getAndSetFilteredData = function (filter) {
+                self.koMethodForFilteredData(filterData(filter, self.fields, self.koMethodForObservableArrayOfData()));
             };
 
             controller.loadData = function (filter) {
@@ -82,20 +83,23 @@ var JSGridHelperThatTakesAJSGridObject = (function () {
 
                 var d = $.Deferred();
 
-                if (self.getURL !== null && self.getURL !== undefined && self.getData !== null && self.getData !== undefined) {
+                if (isDataLoadedFromURL()) {
                     var localGetData = self.getData;
                     if (filter.sortField && filter.sortOrder) {
                         self.getData.ColumnSort = { Name: filter.sortField, Order: filter.sortOrder };
                         localGetData = $.param(self.getData).replace(/%5b([^0-9].*?)%5d/gi, '.$1');
                     }
 
-                    $.get(self.getURL, localGetData).done(function (data) {
+                    $.ajax({ cache: false, url: self.getURL, data: localGetData }).done(function (data) {
                         self.koMethodForObservableArrayOfData(data);
-                        getDeferredDataFromKOObservable(d, filter, self.fields);
+                        getAndSetFilteredData(filter);
+                        var expectedObj = { data: self.koMethodForFilteredData(), itemsCount: [self.koMethodForFilteredData().length] };
+                        d.resolve(expectedObj);
                     });
                 }
                 else {
-                    getDeferredDataFromKOObservable(d, filter, self.fields);
+                    getAndSetFilteredData(filter);
+                    d.resolve(self.koMethodForFilteredData());
                 }
 
                 return d.promise();
@@ -144,7 +148,7 @@ var JSGridHelperThatTakesAJSGridObject = (function () {
 
                     var indexOfItem = self.koMethodForObservableArrayOfData().indexOf(item);
                     if (indexOfItem > -1) {
-                        self.koMethodForObservableArrayOfData(self.koMethodForObservableArrayOfData().splice(indexOfItem, 1));
+                        self.koMethodForObservableArrayOfData().splice(indexOfItem, 1);
                     }
 
                     return item;
@@ -245,17 +249,8 @@ var JSGridHelperThatTakesAJSGridObject = (function () {
             var fieldType = fields.filter(function (field) { return field.name === currentProp }).map(function (field) { return field.type })[0];
             var isDateTimeField = fieldType === "dateTime";
 
-            if (filterAndRecordValuesAreNotEqual(filterValue, value, isDateTimeField)) {
-
-                if (fieldType === "text") {
-                    if (!doesRecordIncludeFilterValue(value, filterValue)) {
-                        return false;
-                    }
-                }
-
-                else if (isDateTimeField && !shouldDateTimeBeKeptInResults(filterValue, value)) {
-                    return false;
-                }
+            if (filterAndRecordValuesAreNotEqual(filterValue, value, isDateTimeField) && ((fieldType === "text" && !doesRecordIncludeFilterValue(value, filterValue)) || (isDateTimeField && !shouldDateTimeBeKeptInResults(filterValue, value)) || fieldType === "checkbox")) {
+                return false;
             }
         }
 
@@ -445,7 +440,11 @@ var JSGridHelperThatTakesAJSGridObject = (function () {
         filterTemplate: function () {
             this._fromPicker = $("<input>").datepicker();
             this._toPicker = $("<input>").datepicker();
-            return $("<div>").append(this._fromPicker).append(this._toPicker);
+
+            var innerFromPicker = $("<div>").append(this._fromPicker);
+            var innerToPicker = $("<div>").append(this._toPicker);
+
+            return $("<div>").append(innerFromPicker).append(innerToPicker);
         },
 
         sorter: function (date1, date2) {
