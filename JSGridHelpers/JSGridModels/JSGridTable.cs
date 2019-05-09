@@ -1,4 +1,6 @@
-﻿using JSGridModels.JSGridColumns.Abstracts;
+﻿using JSGridModels.Exceptions;
+using JSGridModels.JSGridColumns;
+using JSGridModels.JSGridColumns.Abstracts;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -63,6 +65,7 @@ namespace JSGridModels
         public string noDataContent { get; set; }
         public string loadMessage { get; set; }
         public string deleteConfirm { get; set; }
+        public string Name { get; set; }
 
         /// <summary>
         /// Number of items to show on the page

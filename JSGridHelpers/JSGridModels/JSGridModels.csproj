@@ -41,6 +41,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Exceptions\ColumnNotAcceptableException.cs" />
+    <Compile Include="Extensions\IEnumerableExtensions.cs" />
     <Compile Include="Extensions\LinqExtensions.cs" />
     <Compile Include="Helpers\SortingHelper.cs" />
     <Compile Include="JSGridColumns\Abstracts\BaseJSGridSelectColumn.cs" />
