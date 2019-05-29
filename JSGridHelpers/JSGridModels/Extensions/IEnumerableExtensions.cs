@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using JSGridModels.Exceptions;
 using JSGridModels.JSGridColumns;
@@ -34,6 +35,10 @@ namespace JSGridModels.Extensions
                 else if (type.Equals(typeof(bool)) || type.Equals(typeof(bool?)))
                 {
                     jsGridColumn = new JSGridCheckboxColumn(prop.Name, allowEditing);
+                }
+                else if (type.Equals(typeof(DateTime)) || type.Equals(typeof(DateTime?)))
+                {
+                    jsGridColumn = new JSGridDateTimeColumn(prop.Name, allowEditing);
                 }
                 else
                 {
