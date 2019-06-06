@@ -9,6 +9,11 @@ namespace JSGridModels.Extensions
 {
     public static class IEnumerableExtensions
     {
+        public static IEnumerable<JSGridTable> GetJSGridTablesFromIEnumerableOfData<EnumerableType>(this IEnumerable<EnumerableType> records, string tableName, bool allowEditing) where EnumerableType : class
+        {
+            return new List<JSGridTable> { records?.GetJSGridTableFromIEnumerableOfData(tableName, allowEditing) ?? new JSGridTable() };
+        }
+
         public static JSGridTable GetJSGridTableFromIEnumerableOfData<ReturnType>(this IEnumerable<ReturnType> records, string name, bool allowEditing) where ReturnType : class
         {
             var jsGridTable = new JSGridTable();
