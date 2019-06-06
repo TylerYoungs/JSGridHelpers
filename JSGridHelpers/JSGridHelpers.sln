@@ -5,6 +5,10 @@ VisualStudioVersion = 15.0.28307.271
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JSGridModels", "JSGridModels\JSGridModels.csproj", "{B7386818-E37E-4C27-B1C2-73960AC071EB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TesterApp", "TesterApp\TesterApp.csproj", "{A268CD3C-B415-491B-9B98-7DE7A8E28BFC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{0799430B-4F5C-41EA-BD7A-D7AA291C825F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +19,14 @@ Global
 		{B7386818-E37E-4C27-B1C2-73960AC071EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B7386818-E37E-4C27-B1C2-73960AC071EB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B7386818-E37E-4C27-B1C2-73960AC071EB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A268CD3C-B415-491B-9B98-7DE7A8E28BFC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A268CD3C-B415-491B-9B98-7DE7A8E28BFC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A268CD3C-B415-491B-9B98-7DE7A8E28BFC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A268CD3C-B415-491B-9B98-7DE7A8E28BFC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0799430B-4F5C-41EA-BD7A-D7AA291C825F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0799430B-4F5C-41EA-BD7A-D7AA291C825F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0799430B-4F5C-41EA-BD7A-D7AA291C825F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0799430B-4F5C-41EA-BD7A-D7AA291C825F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
