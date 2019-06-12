@@ -3,6 +3,7 @@ using JSGridModels.JSGridColumns;
 using JSGridModels.JSGridColumns.Abstracts;
 using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Linq;
 
 namespace JSGridModels
@@ -28,38 +29,27 @@ namespace JSGridModels
 
             if (records != null)
             {
-                var props = ((ReturnType)Activator.CreateInstance(typeof(ReturnType), new object[] { })).GetType().GetProperties();
+                var typeOfReturn = typeof(ReturnType);
 
-                foreach (var prop in props)
+                //if (typeOfReturn.IsAssignableFrom(typeof(IDictionary<string, object>)))
+                if(typeOfReturn.Equals(typeof(ExpandoObject)))
                 {
-                    var type = prop.PropertyType;
-                    JSGridColumn jsGridColumn;
-
-                    if (type.Equals(typeof(int)) || type.Equals(typeof(int?)) || type.Equals(typeof(decimal)) || type.Equals(typeof(decimal?)) || type.Equals(typeof(double)) || type.Equals(typeof(double?)))
+                    foreach(var expando in records.Select(x=>x as ExpandoObject))
                     {
-                        jsGridColumn = new JSGridNumberColumn(prop.Name, allowEditing);
+                        var exp = expando as ExpandoObject;
+                        foreach(var kvp in exp)
+                        {
+                            jsGridTable.fields.Add(GetColumnFromType(false, kvp.Key, typeof(string)));
+                        }
                     }
-                    else if (type.Equals(typeof(string)) || type.Equals(typeof(char)))
-                    {
-                        jsGridColumn = new JSGridTextColumn(prop.Name, allowEditing);
-                    }
-                    else if (type.Equals(typeof(bool)) || type.Equals(typeof(bool?)))
-                    {
-                        jsGridColumn = new JSGridCheckboxColumn(prop.Name, allowEditing);
-                    }
-                    else if (type.Equals(typeof(DateTime)) || type.Equals(typeof(DateTime?)))
-                    {
-                        jsGridColumn = new JSGridDateTimeColumn(prop.Name, allowEditing);
-                    }
-                    else
-                    {
-                        throw new ColumnNotAcceptableException($"Property named {prop.Name} not availble for conversion to JSGridColumn type.");
-                    }
-
-                    jsGridTable.fields.Add(jsGridColumn);
                 }
+                else
+                {
+                    var props = ((ReturnType)Activator.CreateInstance(typeOfReturn, new object[] { })).GetType().GetProperties();
+                    jsGridTable.fields.AddRange(props.Select(prop => GetColumnFromType(allowEditing, prop.Name, prop.PropertyType)));
 
-                jsGridTable.data = GetDataAsObjects(records);
+                    jsGridTable.data = GetDataAsObjects(records);
+                }
             }
             else
             {
@@ -67,6 +57,34 @@ namespace JSGridModels
             }
 
             return jsGridTable;
+        }
+
+        private static JSGridColumn GetColumnFromType(bool allowEditing, string name, Type type)
+        {
+            JSGridColumn jsGridColumn;
+
+            if (type.Equals(typeof(int)) || type.Equals(typeof(int?)) || type.Equals(typeof(decimal)) || type.Equals(typeof(decimal?)) || type.Equals(typeof(double)) || type.Equals(typeof(double?)))
+            {
+                jsGridColumn = new JSGridNumberColumn(name, allowEditing);
+            }
+            else if (type.Equals(typeof(string)) || type.Equals(typeof(char)))
+            {
+                jsGridColumn = new JSGridTextColumn(name, allowEditing);
+            }
+            else if (type.Equals(typeof(bool)) || type.Equals(typeof(bool?)))
+            {
+                jsGridColumn = new JSGridCheckboxColumn(name, allowEditing);
+            }
+            else if (type.Equals(typeof(DateTime)) || type.Equals(typeof(DateTime?)))
+            {
+                jsGridColumn = new JSGridDateTimeColumn(name, allowEditing);
+            }
+            else
+            {
+                throw new ColumnNotAcceptableException($"Property named {name} not availble for conversion to JSGridColumn type.");
+            }
+
+            return jsGridColumn;
         }
 
         private void SetupDefaults()

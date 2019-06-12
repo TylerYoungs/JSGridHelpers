@@ -52,6 +52,7 @@
     <Compile Include="Models\TestClass.cs" />
     <Compile Include="TestJSGrid.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TestWithExpandableObjects.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
