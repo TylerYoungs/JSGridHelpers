@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Dynamic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using JSGridModels;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -38,16 +36,16 @@ namespace Tests
 
             var jsGridTable = JSGridTable.GetJSGridTableFromIEnumerableOfData(expandos, "Test", false);
 
-            Assert.AreEqual(jsGridTable.data.Count(), 2);
-            Assert.AreEqual(jsGridTable.fields.Count(), 4);
+            Assert.AreEqual(2, jsGridTable.data.Count());
+            Assert.AreEqual(4, jsGridTable.fields.Count());
         }
 
         public ExpandoObject GetExpandoObject(string i)
         {
             var expandoObject = new ExpandoObject() as IDictionary<string, object>;
 
-            expandoObject.Add($"TransferExtension{i}", $"TestTransferExtension{i}");
-            expandoObject.Add($"Description{i}", $"TestDescription{i}");
+            expandoObject.Add($"TransferExtension", $"TestTransferExtension{i}");
+            expandoObject.Add($"Description", $"TestDescription{i}");
             expandoObject.Add(DateTime.Now.AddDays(-1).ToString("MM/dd/yyyy"), "110");
             expandoObject.Add(DateTime.Now.Day.ToString("MM/dd/yyyy"), "10");
 

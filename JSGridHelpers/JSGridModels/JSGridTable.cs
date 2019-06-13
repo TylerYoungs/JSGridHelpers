@@ -32,13 +32,14 @@ namespace JSGridModels
                 var typeOfReturn = typeof(ReturnType);
 
                 //if (typeOfReturn.IsAssignableFrom(typeof(IDictionary<string, object>)))
-                if(typeOfReturn.Equals(typeof(ExpandoObject)))
+                if (typeOfReturn.Equals(typeof(ExpandoObject)))
                 {
-                    foreach(var expando in records.Select(x=>x as ExpandoObject))
+                    var exp = records.FirstOrDefault() as ExpandoObject;
+                    if (exp != null)
                     {
-                        var exp = expando as ExpandoObject;
-                        foreach(var kvp in exp)
+                        for (int i = 0; i < exp.Count(); i++)
                         {
+                            var kvp = exp.ElementAt(i);
                             jsGridTable.fields.Add(GetColumnFromType(false, kvp.Key, typeof(string)));
                         }
                     }
@@ -48,8 +49,9 @@ namespace JSGridModels
                     var props = ((ReturnType)Activator.CreateInstance(typeOfReturn, new object[] { })).GetType().GetProperties();
                     jsGridTable.fields.AddRange(props.Select(prop => GetColumnFromType(allowEditing, prop.Name, prop.PropertyType)));
 
-                    jsGridTable.data = GetDataAsObjects(records);
                 }
+
+                jsGridTable.data = GetDataAsObjects(records);
             }
             else
             {
