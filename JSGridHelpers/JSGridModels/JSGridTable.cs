@@ -31,7 +31,6 @@ namespace JSGridModels
             {
                 var typeOfReturn = typeof(ReturnType);
 
-                //if (typeOfReturn.IsAssignableFrom(typeof(IDictionary<string, object>)))
                 if (typeOfReturn.Equals(typeof(ExpandoObject)))
                 {
                     var exp = records.FirstOrDefault() as ExpandoObject;
