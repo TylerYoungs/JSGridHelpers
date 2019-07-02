@@ -45,7 +45,7 @@ namespace Tests
 
             for (int i = 0; i < _recordCount; i++)
             {
-                _testClasses.Add(new TestClass { DateTime = currentDate, NullableDateTime = currentDate, Number = i, String = "Test" + i});
+                _testClasses.Add(new TestClass { DateTime = currentDate, Long = 123, NullableDateTime = currentDate, Number = i, String = "Test" + i});
             }
 
             CreateJSGridTable();

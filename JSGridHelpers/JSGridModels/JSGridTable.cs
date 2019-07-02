@@ -47,7 +47,6 @@ namespace JSGridModels
                 {
                     var props = ((ReturnType)Activator.CreateInstance(typeOfReturn, new object[] { })).GetType().GetProperties();
                     jsGridTable.fields.AddRange(props.Select(prop => GetColumnFromType(allowEditing, prop.Name, prop.PropertyType)));
-
                 }
 
                 jsGridTable.data = GetDataAsObjects(records);
@@ -64,7 +63,7 @@ namespace JSGridModels
         {
             JSGridColumn jsGridColumn;
 
-            if (type.Equals(typeof(int)) || type.Equals(typeof(int?)) || type.Equals(typeof(decimal)) || type.Equals(typeof(decimal?)) || type.Equals(typeof(double)) || type.Equals(typeof(double?)))
+            if (type.Equals(typeof(int)) || type.Equals(typeof(int?)) || type.Equals(typeof(decimal)) || type.Equals(typeof(decimal?)) || type.Equals(typeof(double)) || type.Equals(typeof(double?)) || type.Equals(typeof(long)) || type.Equals(typeof(long?)))
             {
                 jsGridColumn = new JSGridNumberColumn(name, allowEditing);
             }
