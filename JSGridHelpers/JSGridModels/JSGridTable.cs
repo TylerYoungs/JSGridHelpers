@@ -127,9 +127,19 @@ namespace JSGridModels
         public bool editing { get; set; }
         public bool deleting { get; set; }
         public bool sorting { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
         public bool autoload { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
         public bool pageLoading { get; set; }
-        public bool paging { get; set; }//set to "false" to show all items in the grid
+        /// <summary>
+        /// Set to "false" to show all items in the grid. Paging is whether or not to show pagination.
+        /// </summary>
+        public bool paging { get; set; }
 
         public string noDataContent { get; set; }
         public string loadMessage { get; set; }

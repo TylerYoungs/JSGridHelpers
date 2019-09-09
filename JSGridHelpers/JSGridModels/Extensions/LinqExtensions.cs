@@ -31,11 +31,11 @@ namespace JSGridModels.Extensions
 
         private static IEnumerable<EnumerableType> GetEnumerableFromMethod<EnumerableType>(IEnumerable<EnumerableType> objects, string propertyName, string methodName)
         {
-            PopuplateExpressionAndGenericMethodViaEnumerable<EnumerableType>(propertyName, methodName, out LambdaExpression expression, out MethodInfo genericMethod);
+            PopulateExpressionAndGenericMethodViaEnumerable<EnumerableType>(propertyName, methodName, out LambdaExpression expression, out MethodInfo genericMethod);
             return (IEnumerable<EnumerableType>)genericMethod.Invoke(null, new object[] { objects, expression.Compile() });
         }
 
-        private static void PopuplateExpressionAndGenericMethodViaEnumerable<EnumerableType>(string propertyName, string methodName, out LambdaExpression expression, out MethodInfo genericMethod)
+        private static void PopulateExpressionAndGenericMethodViaEnumerable<EnumerableType>(string propertyName, string methodName, out LambdaExpression expression, out MethodInfo genericMethod)
         {
             var propInfo = GetPropertyInfo(typeof(EnumerableType), propertyName);
             expression = GetOrderExpression(typeof(EnumerableType), propInfo);
